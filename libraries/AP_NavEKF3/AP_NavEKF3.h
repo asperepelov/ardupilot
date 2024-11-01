@@ -384,6 +384,9 @@ private:
     };
 
     // EKF Mavlink Tuneable Parameters
+    AP_Int8  _windEnableParam;      // Enable wind from parameters
+    AP_Int16 _windSpeed;            // Wind speed: m/s
+    AP_Int16 _windDirection;        // Wind direction in degrees (0-359) : deg
     AP_Int8  _enable;               // zero to disable EKF3
     AP_Float _gpsHorizVelNoise;     // GPS horizontal velocity measurement noise : m/s
     AP_Float _gpsVertVelNoise;      // GPS vertical velocity measurement noise : m/s

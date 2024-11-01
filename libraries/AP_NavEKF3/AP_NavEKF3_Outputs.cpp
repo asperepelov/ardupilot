@@ -165,10 +165,29 @@ uint32_t NavEKF3_core::getLastVelNorthEastReset(Vector2f &vel) const
 // returns true if wind state estimation is active
 bool NavEKF3_core::getWind(Vector3f &wind) const
 {
+    if (frontend->_windEnableParam == 1) {
+        const float wind_speed_ms = static_cast<float>(frontend->_windSpeed);
+        const float wind_direction_deg = static_cast<float>(frontend->_windDirection);
+        
+        // Проверка валидности параметров
+        if (wind_speed_ms < 0.0f || wind_direction_deg < 0.0f || wind_direction_deg > 360.0f) {
+            wind.zero();
+            return false;
+        }
+        
+        // Конвертация в компоненты North-East
+        const float wind_direction_rad = radians(wind_direction_deg);
+        wind.x = wind_speed_ms * cosf(wind_direction_rad);
+        wind.y = wind_speed_ms * sinf(wind_direction_rad);
+        wind.z = 0.0f;
+        
+        return true;
+    } else { // оставлем код как было ранее
     wind.x = stateStruct.wind_vel.x;
     wind.y = stateStruct.wind_vel.y;
     wind.z = 0.0f; // currently don't estimate this
     return !inhibitWindStates;
+    }
 }
 
 // return the NED velocity of the body frame origin in m/s

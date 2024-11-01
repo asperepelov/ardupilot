@@ -742,6 +742,29 @@ const AP_Param::GroupInfo NavEKF3::var_info2[] = {
     // @Bitmask: 0:JammingExpected
     // @User: Advanced
     AP_GROUPINFO("OPTIONS",  11, NavEKF3, _options, 0),
+    
+    // @Param: WND_ENBL
+    // @DisplayName: Enable wind from parameters
+    // @Description: Enable using wind speed and direction from parameters instead of EKF estimation
+    // @Values: 0:Disable, 1:Enable
+    // @User: Advanced
+    AP_GROUPINFO("WND_ENBL", 12, NavEKF3, _windEnableParam, 0),
+
+    // @Param: WND_SPD
+    // @DisplayName: Wind Speed
+    // @Description: Wind speed in m/s
+    // @Units: m/s
+    // @Range: 0 100
+    // @User: Advanced
+    AP_GROUPINFO("WND_SPD", 13, NavEKF3, _windSpeed, 0),
+
+    // @Param: WND_DIR
+    // @DisplayName: Wind Direction
+    // @Description: Wind direction in degrees (0-359)
+    // @Units: deg
+    // @Range: 0 359
+    // @User: Advanced
+    AP_GROUPINFO("WND_DIR", 14, NavEKF3, _windDirection, 0),   
 
     AP_GROUPEND
 };
