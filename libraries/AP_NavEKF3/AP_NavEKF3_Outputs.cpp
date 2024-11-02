@@ -165,12 +165,20 @@ uint32_t NavEKF3_core::getLastVelNorthEastReset(Vector2f &vel) const
 // returns true if wind state estimation is active
 bool NavEKF3_core::getWind(Vector3f &wind) const
 {
+    // Initial debug message
+    gcs().send_text(MAV_SEVERITY_INFO, "Wind: NavEKF3_core::getWind started");    
+
     if (frontend->_windEnableParam == 1) {
         const float wind_speed_ms = static_cast<float>(frontend->_windSpeed);
         const float wind_direction_deg = static_cast<float>(frontend->_windDirection);
         
+        // Log parameter values
+        gcs().send_text(MAV_SEVERITY_INFO, "Wind params: Speed=%.1f Dir=%.1f",
+                     (double)wind_speed_ms, 
+                     (double)wind_direction_deg);
+
         // Проверка валидности параметров
-        if (wind_speed_ms < 0.0f || wind_direction_deg < 0.0f || wind_direction_deg > 360.0f) {
+        if (wind_speed_ms < 0.0f || wind_direction_deg < 0.0f || wind_direction_deg > 359.0f) {
             wind.zero();
             return false;
         }
@@ -180,6 +188,8 @@ bool NavEKF3_core::getWind(Vector3f &wind) const
         wind.x = wind_speed_ms * cosf(wind_direction_rad);
         wind.y = wind_speed_ms * sinf(wind_direction_rad);
         wind.z = 0.0f;
+
+        gcs().send_text(MAV_SEVERITY_INFO, "Wind params: x=%.2f y=%.2f", wind.x, wind.y);        
         
         return true;
     } else { // оставлем код как было ранее

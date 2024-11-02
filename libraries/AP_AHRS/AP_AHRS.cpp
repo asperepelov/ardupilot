@@ -345,6 +345,9 @@ void AP_AHRS::update_state(void)
     state.primary_accel = _get_primary_accel_index();
     state.primary_core = _get_primary_core_index();
     state.wind_estimate_ok = _wind_estimate(state.wind_estimate);
+    gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS::update_state: N=%.1f E=%.1f",
+                    (double)state.wind_estimate.x, 
+                    (double)state.wind_estimate.y);    
     state.EAS2TAS = AP_AHRS_Backend::get_EAS2TAS();
     state.airspeed_ok = _airspeed_estimate(state.airspeed, state.airspeed_estimate_type);
     state.airspeed_true_ok = _airspeed_estimate_true(state.airspeed_true);
@@ -842,30 +845,36 @@ float AP_AHRS::get_error_yaw(void) const
 // return a wind estimation vector, in m/s
 bool AP_AHRS::_wind_estimate(Vector3f &wind) const
 {
+    gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS::_wind_estimate: active_EKF_type=%d", uint8_t(active_EKF_type()));
     switch (active_EKF_type()) {
 #if AP_AHRS_DCM_ENABLED
     case EKFType::DCM:
+        gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS::_wind_estimate: EKFType::DCM");
         return dcm.wind_estimate(wind);
 #endif
 
 #if AP_AHRS_SIM_ENABLED
     case EKFType::SIM:
+        gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS::_wind_estimate: EKFType::SIM");
         return sim.wind_estimate(wind);
 #endif
 
 #if HAL_NAVEKF2_AVAILABLE
     case EKFType::TWO:
+        gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS::_wind_estimate: EKFType::TWO");
         EKF2.getWind(wind);
         return true;
 #endif
 
 #if HAL_NAVEKF3_AVAILABLE
     case EKFType::THREE:
+        gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS::_wind_estimate: EKFType::THREE");
         return EKF3.getWind(wind);
 #endif
 
 #if AP_AHRS_EXTERNAL_ENABLED
     case EKFType::EXTERNAL:
+        gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS::_wind_estimate: EKFType::EXTERNAL");
         return external.wind_estimate(wind);
 #endif
     }
@@ -1939,6 +1948,7 @@ AP_AHRS::EKFType AP_AHRS::_active_EKF_type(void) const
 {
     EKFType ret = fallback_active_EKF_type();
 
+    gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS::_active_EKF_type: ekf_type()=%d", uint8_t(ekf_type()));
     switch (ekf_type()) {
 #if AP_AHRS_DCM_ENABLED
     case EKFType::DCM:
@@ -1967,6 +1977,10 @@ AP_AHRS::EKFType AP_AHRS::_active_EKF_type(void) const
 #if HAL_NAVEKF3_AVAILABLE
     case EKFType::THREE: {
         // do we have an EKF3 yet?
+        gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS::_active_EKF_type: _ekf3_started=%d", uint8_t(_ekf3_started));
+        gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS::_active_EKF_type: always_use_EKF()=%d", uint8_t(always_use_EKF()));
+        gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS::_active_EKF_type: EKF3.healthy()=%d", uint8_t(EKF3.healthy()));
+        gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS::_active_EKF_type: fallback_active_EKF_type()=%d", uint8_t(fallback_active_EKF_type()));
         if (!_ekf3_started) {
             return fallback_active_EKF_type();
         }
