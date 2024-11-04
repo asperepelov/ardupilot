@@ -49,7 +49,7 @@ extern const AP_HAL::HAL& hal;
 // return a wind estimation vector, in m/s
 // эту функцию меняем для ветрового сноса
 bool AP_AHRS_DCM::wind_estimate(Vector3f &wind) const {
-    gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS_DCM::wind_estimate");
+    // gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS_DCM::wind_estimate");
     const AP_AHRS &ahrs = AP::ahrs();
 
     if (ahrs.get_windEnableParam() == 1) {
