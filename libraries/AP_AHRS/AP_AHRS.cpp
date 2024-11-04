@@ -192,6 +192,29 @@ const AP_Param::GroupInfo AP_AHRS::var_info[] = {
     // @Bitmask: 0:DisableDCMFallbackFW, 1:DisableDCMFallbackVTOL
     // @User: Advanced
     AP_GROUPINFO("OPTIONS",  18, AP_AHRS, _options, 0),
+
+    // @Param: WND_ENBL
+    // @DisplayName: Enable wind from parameters
+    // @Description: Enable using wind speed and direction from parameters instead of EKF estimation
+    // @Values: 0:Disable, 1:Enable
+    // @User: Advanced
+    AP_GROUPINFO("WND_ENBL", 19, AP_AHRS, _windEnableParam, 0),
+
+    // @Param: WND_SPD
+    // @DisplayName: Wind Speed
+    // @Description: Wind speed in m/s
+    // @Units: m/s
+    // @Range: 0 100
+    // @User: Advanced
+    AP_GROUPINFO("WND_SPD", 20, AP_AHRS, _windSpeed, 0),
+
+    // @Param: WND_DIR
+    // @DisplayName: Wind Direction
+    // @Description: Wind direction in degrees (0-359)
+    // @Units: deg
+    // @Range: 0 359
+    // @User: Advanced
+    AP_GROUPINFO("WND_DIR", 21, AP_AHRS, _windDirection, 0),       
     
     AP_GROUPEND
 };
@@ -343,7 +366,7 @@ void AP_AHRS::update_state(void)
     state.primary_gyro = _get_primary_gyro_index();
     state.primary_accel = _get_primary_accel_index();
     state.primary_core = _get_primary_core_index();
-    state.wind_estimate_ok = _wind_estimate(state.wind_estimate);
+    state.wind_estimate_ok = _wind_estimate(state.wind_estimate);   
     state.EAS2TAS = AP_AHRS_Backend::get_EAS2TAS();
     state.airspeed_ok = _airspeed_estimate(state.airspeed, state.airspeed_estimate_type);
     state.airspeed_true_ok = _airspeed_estimate_true(state.airspeed_true);

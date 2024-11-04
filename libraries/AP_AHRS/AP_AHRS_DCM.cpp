@@ -46,6 +46,39 @@ extern const AP_HAL::HAL& hal;
 // http://gentlenav.googlecode.com/files/fastRotations.pdf
 #define SPIN_RATE_LIMIT 20
 
+// return a wind estimation vector, in m/s
+// эту функцию меняем для ветрового сноса
+bool AP_AHRS_DCM::wind_estimate(Vector3f &wind) const {
+    gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS_DCM::wind_estimate");
+    const AP_AHRS &ahrs = AP::ahrs();
+
+    if (ahrs.get_windEnableParam() == 1) {
+        const float wind_speed_ms = static_cast<float>(ahrs.get_windSpeed());
+        float wind_direction_deg = static_cast<float>(ahrs.get_windDirection());
+        wind_direction_deg = wind_direction_deg < 180 ? wind_direction_deg + 180 : wind_direction_deg - 180; // Убираем дефолтное направление 180, которое почему-то учитывается в расчёте
+        
+        // Проверка валидности параметров
+        if (wind_speed_ms < 0.0f || wind_direction_deg < 0.0f || wind_direction_deg > 359.0f) {
+            wind.zero();
+            return false;
+        }
+        
+        // Конвертация в компоненты North-East
+        const float wind_direction_rad = radians(wind_direction_deg);
+        wind.x = wind_speed_ms * cosf(wind_direction_rad);
+        wind.y = wind_speed_ms * sinf(wind_direction_rad);
+        wind.z = 0.0f;
+
+        // gcs().send_text(MAV_SEVERITY_INFO, "Wind params: x=%.2f y=%.2f", wind.x, wind.y);        
+        
+        return true;
+    } else { // оставлем код как было ранее    
+
+    wind = _wind;
+    return true;
+    }
+}
+
 // reset the current gyro drift estimate
 //  should be called if gyro offsets are recalculated
 void

@@ -89,6 +89,13 @@ public:
     void            update(bool skip_ins_update=false);
     void            reset();
 
+    // get Enable wind from parameters
+    AP_Int8  get_windEnableParam() const {return _windEnableParam;}
+    // get Wind speed: m/s
+    AP_Int16 get_windSpeed() const {return _windSpeed;}
+    // get Wind direction in degrees (0-359) : deg
+    AP_Int16 get_windDirection() const {return _windDirection;}        
+
     // get current location estimate
     bool get_location(Location &loc) const;
 
@@ -708,6 +715,9 @@ private:
      * DCM-backend parameters; it takes references to these
      */
     // settable parameters
+    AP_Int8  _windEnableParam;      // Enable wind from parameters
+    AP_Int16 _windSpeed;            // Wind speed: m/s
+    AP_Int16 _windDirection;        // Wind direction in degrees (0-359) : deg
     AP_Float _kp_yaw;
     AP_Float _kp;
     AP_Float gps_gain;
