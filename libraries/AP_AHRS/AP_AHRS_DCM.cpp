@@ -741,6 +741,7 @@ AP_AHRS_DCM::drift_correction(float deltat)
                 wind.z = 0.0f;
             }
         
+            // gcs().send_text(MAV_SEVERITY_INFO, "wind x=%.2f y=%.2f", wind.x, wind.y);        
             _wind = wind; // Сохранение ветра
         }
         ////////////////////////////////////////////////////////////////////////////
@@ -1041,7 +1042,6 @@ void AP_AHRS_DCM::estimate_wind(void)
 
         if (wind.length() < _wind.length() + 20) {
             _wind = _wind * 0.95f + wind * 0.05f;
-            gcs().send_text(MAV_SEVERITY_INFO, "estimate_wind 1050: _wind x=%.2f y=%.2f", _wind.x, _wind.y);        
         }
 
         _last_wind_time = now;
@@ -1055,7 +1055,6 @@ void AP_AHRS_DCM::estimate_wind(void)
         const Vector3f airspeed = _dcm_matrix.colx() * AP::airspeed()->get_airspeed();
         const Vector3f wind = velocity - (airspeed * get_EAS2TAS());
         _wind = _wind * 0.92f + wind * 0.08f;
-        gcs().send_text(MAV_SEVERITY_INFO, "estimate_wind 1064: _wind x=%.2f y=%.2f", _wind.x, _wind.y);        
     }
 #endif
 }
@@ -1194,9 +1193,6 @@ Vector2f AP_AHRS_DCM::groundspeed_vector(void)
         Vector3f wind;
         UNUSED_RESULT(wind_estimate(wind));
         gndVelADS = airspeed_vector + wind.xy();
-        gcs().send_text(MAV_SEVERITY_INFO, "airspeed_vector: x=%.2f y=%.2f", airspeed_vector.x, airspeed_vector.y);        
-        gcs().send_text(MAV_SEVERITY_INFO, "wind: x=%.2f y=%.2f", wind.x, wind.y);        
-        gcs().send_text(MAV_SEVERITY_INFO, "gndVelADS: x=%.2f y=%.2f", gndVelADS.x, gndVelADS.y);        
     }
 
     // Generate estimate of ground speed vector using GPS
