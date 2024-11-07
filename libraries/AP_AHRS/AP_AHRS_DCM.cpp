@@ -47,36 +47,9 @@ extern const AP_HAL::HAL& hal;
 #define SPIN_RATE_LIMIT 20
 
 // return a wind estimation vector, in m/s
-// эту функцию меняем для ветрового сноса
 bool AP_AHRS_DCM::wind_estimate(Vector3f &wind) const {
-    // gcs().send_text(MAV_SEVERITY_INFO, "AP_AHRS_DCM::wind_estimate");
-    const AP_AHRS &ahrs = AP::ahrs();
-
-    if (ahrs.get_windEnableParam() == 1) {
-        const float wind_speed_ms = static_cast<float>(ahrs.get_windSpeed());
-        float wind_direction_deg = static_cast<float>(ahrs.get_windDirection());
-        wind_direction_deg = wind_direction_deg < 180 ? wind_direction_deg + 180 : wind_direction_deg - 180; // Убираем дефолтное направление 180, которое почему-то учитывается в расчёте
-        
-        // Проверка валидности параметров
-        if (wind_speed_ms < 0.0f || wind_direction_deg < 0.0f || wind_direction_deg > 359.0f) {
-            wind.zero();
-            return false;
-        }
-        
-        // Конвертация в компоненты North-East
-        const float wind_direction_rad = radians(wind_direction_deg);
-        wind.x = wind_speed_ms * cosf(wind_direction_rad);
-        wind.y = wind_speed_ms * sinf(wind_direction_rad);
-        wind.z = 0.0f;
-
-        // gcs().send_text(MAV_SEVERITY_INFO, "Wind params: x=%.2f y=%.2f", wind.x, wind.y);        
-        
-        return true;
-    } else { // оставлем код как было ранее    
-
     wind = _wind;
     return true;
-    }
 }
 
 // reset the current gyro drift estimate
@@ -747,7 +720,31 @@ AP_AHRS_DCM::drift_correction(float deltat)
         // use airspeed to estimate our ground velocity in
         // earth frame by subtracting the wind
         velocity = _dcm_matrix.colx() * airspeed;
-
+        
+        ////////////////////////////////////////////////////////////////////////////
+        // Получение ветра из параметров
+        const AP_AHRS &ahrs = AP::ahrs(); 
+        Vector3f wind;          
+        if (ahrs.get_windEnableParam() == 1) {
+            const float wind_speed_ms = static_cast<float>(ahrs.get_windSpeed());
+            float wind_direction_deg = static_cast<float>(ahrs.get_windDirection());
+            wind_direction_deg = wind_direction_deg < 180 ? wind_direction_deg + 180 : wind_direction_deg - 180; // Убираем дефолтное направление 180, которое почему-то учитывается в расчёте
+            
+            // Проверка валидности параметров
+            if (wind_speed_ms < 0.0f || wind_direction_deg < 0.0f || wind_direction_deg > 359.0f) {
+                wind.zero();
+            } else {
+                // Конвертация в компоненты North-East
+                const float wind_direction_rad = radians(wind_direction_deg);
+                wind.x = wind_speed_ms * cosf(wind_direction_rad);
+                wind.y = wind_speed_ms * sinf(wind_direction_rad);
+                wind.z = 0.0f;
+            }
+        
+            _wind = wind; // Сохранение ветра
+        }
+        ////////////////////////////////////////////////////////////////////////////
+        
         // add in wind estimate
         velocity += _wind;
 
@@ -1044,6 +1041,7 @@ void AP_AHRS_DCM::estimate_wind(void)
 
         if (wind.length() < _wind.length() + 20) {
             _wind = _wind * 0.95f + wind * 0.05f;
+            gcs().send_text(MAV_SEVERITY_INFO, "estimate_wind 1050: _wind x=%.2f y=%.2f", _wind.x, _wind.y);        
         }
 
         _last_wind_time = now;
@@ -1057,6 +1055,7 @@ void AP_AHRS_DCM::estimate_wind(void)
         const Vector3f airspeed = _dcm_matrix.colx() * AP::airspeed()->get_airspeed();
         const Vector3f wind = velocity - (airspeed * get_EAS2TAS());
         _wind = _wind * 0.92f + wind * 0.08f;
+        gcs().send_text(MAV_SEVERITY_INFO, "estimate_wind 1064: _wind x=%.2f y=%.2f", _wind.x, _wind.y);        
     }
 #endif
 }
@@ -1195,6 +1194,9 @@ Vector2f AP_AHRS_DCM::groundspeed_vector(void)
         Vector3f wind;
         UNUSED_RESULT(wind_estimate(wind));
         gndVelADS = airspeed_vector + wind.xy();
+        gcs().send_text(MAV_SEVERITY_INFO, "airspeed_vector: x=%.2f y=%.2f", airspeed_vector.x, airspeed_vector.y);        
+        gcs().send_text(MAV_SEVERITY_INFO, "wind: x=%.2f y=%.2f", wind.x, wind.y);        
+        gcs().send_text(MAV_SEVERITY_INFO, "gndVelADS: x=%.2f y=%.2f", gndVelADS.x, gndVelADS.y);        
     }
 
     // Generate estimate of ground speed vector using GPS
