@@ -725,24 +725,28 @@ AP_AHRS_DCM::drift_correction(float deltat)
         // Получение ветра из параметров
         const AP_AHRS &ahrs = AP::ahrs(); 
         Vector3f wind;          
-        if (ahrs.get_windEnableParam() == 1) {
-            const float wind_speed_ms = static_cast<float>(ahrs.get_windSpeed());
-            float wind_direction_deg = static_cast<float>(ahrs.get_windDirection());
-            wind_direction_deg = wind_direction_deg < 180 ? wind_direction_deg + 180 : wind_direction_deg - 180; // Убираем дефолтное направление 180, которое почему-то учитывается в расчёте
-            
-            // Проверка валидности параметров
-            if (wind_speed_ms < 0.0f || wind_direction_deg < 0.0f || wind_direction_deg > 359.0f) {
-                wind.zero();
-            } else {
-                // Конвертация в компоненты North-East
-                const float wind_direction_rad = radians(wind_direction_deg);
-                wind.x = wind_speed_ms * cosf(wind_direction_rad);
-                wind.y = wind_speed_ms * sinf(wind_direction_rad);
-                wind.z = 0.0f;
-            }
+        const float wind_speed_ms = static_cast<float>(ahrs.get_windSpeed());
+        float wind_direction_deg = static_cast<float>(ahrs.get_windDirection());
+        wind_direction_deg = wind_direction_deg < 180 ? wind_direction_deg + 180 : wind_direction_deg - 180; // Убираем дефолтное направление 180, которое почему-то учитывается в расчёте
         
-            // gcs().send_text(MAV_SEVERITY_INFO, "wind x=%.2f y=%.2f", wind.x, wind.y);        
+        // Проверка валидности параметров
+        if (wind_speed_ms < 0.0f || wind_direction_deg < 0.0f || wind_direction_deg > 359.0f) {
+            wind.zero();
+        } else {
+            // Конвертация в компоненты North-East
+            const float wind_direction_rad = radians(wind_direction_deg);
+            wind.x = wind_speed_ms * cosf(wind_direction_rad);
+            wind.y = wind_speed_ms * sinf(wind_direction_rad);
+            wind.z = 0.0f;
+        }
+        // gcs().send_text(MAV_SEVERITY_INFO, "wind x=%.2f y=%.2f", wind.x, wind.y);        
+        
+        if (ahrs.get_windEnableParam() == 1) {
             _wind = wind; // Сохранение ветра
+        } else {
+            if (_wind.x == wind.x && _wind.y == wind.y) {
+                _wind.zero(); // Сброс ветра
+            }
         }
         ////////////////////////////////////////////////////////////////////////////
         
