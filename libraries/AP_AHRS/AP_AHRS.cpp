@@ -204,15 +204,15 @@ const AP_Param::GroupInfo AP_AHRS::var_info[] = {
     // @DisplayName: Wind Speed
     // @Description: Wind speed in m/s
     // @Units: m/s
-    // @Range: 0 100
+    // @Range: 0 50
     // @User: Advanced
     AP_GROUPINFO("WND_SPD", 20, AP_AHRS, _windSpeed, 0),
 
     // @Param: WND_DIR
     // @DisplayName: Wind Direction
-    // @Description: Wind direction in degrees (0-359)
+    // @Description: Wind direction in degrees (0-360)
     // @Units: deg
-    // @Range: 0 359
+    // @Range: 0 360
     // @User: Advanced
     AP_GROUPINFO("WND_DIR", 21, AP_AHRS, _windDirection, 0),       
     
