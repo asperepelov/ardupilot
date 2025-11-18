@@ -744,7 +744,7 @@ AP_AHRS_DCM::drift_correction(float deltat)
         if (ahrs.get_windEnableParam() == 1) {
             _wind = wind; // Сохранение ветра
         } else {
-            if (_wind.x == wind.x && _wind.y == wind.y) {
+            if (is_equal(_wind.x, wind.x) && is_equal(_wind.y, wind.y)) {
                 _wind.zero(); // Сброс ветра
             }
         }
