@@ -198,7 +198,7 @@ const AP_Param::GroupInfo AP_AHRS::var_info[] = {
     // @Description: Enable using wind speed and direction from parameters instead of EKF estimation
     // @Values: 0:Disable, 1:Enable
     // @User: Advanced
-    AP_GROUPINFO("WND_ENBL", 19, AP_AHRS, _windEnableParam, 0),
+    AP_GROUPINFO("WE", 19, AP_AHRS, _windEnableParam, 0),
 
     // @Param: WND_SPD
     // @DisplayName: Wind Speed
@@ -206,7 +206,7 @@ const AP_Param::GroupInfo AP_AHRS::var_info[] = {
     // @Units: m/s
     // @Range: 0 50
     // @User: Advanced
-    AP_GROUPINFO("WND_SPD", 20, AP_AHRS, _windSpeed, 0),
+    AP_GROUPINFO("W1", 20, AP_AHRS, _windSpeed, 0),
 
     // @Param: WND_DIR
     // @DisplayName: Wind Direction
@@ -214,7 +214,7 @@ const AP_Param::GroupInfo AP_AHRS::var_info[] = {
     // @Units: deg
     // @Range: 0 360
     // @User: Advanced
-    AP_GROUPINFO("WND_DIR", 21, AP_AHRS, _windDirection, 0),       
+    AP_GROUPINFO("W2", 21, AP_AHRS, _windDirection, 0),       
     
     AP_GROUPEND
 };
