@@ -1,3 +1,5 @@
+# hw definition file for processing by chibios_pins.py
+# for Matek H743-WING bootloader
 
 # MCU class and specific type
 MCU STM32H7xx STM32H743xx

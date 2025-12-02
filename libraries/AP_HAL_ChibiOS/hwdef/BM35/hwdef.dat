@@ -1,14 +1,11 @@
 # hw definition file for processing by chibios_pins.py
+# for Matek H743-WING
 
 # MCU class and specific type
 MCU STM32H7xx STM32H743xx
 
 # board ID for firmware load
-APJ_BOARD_ID 42
-USB_STRING_MANUFACTURER "Pobeda"
-
-# default to all pins low to avoid ESD issues
-DEFAULTGPIO OUTPUT LOW PULLDOWN
+APJ_BOARD_ID 1013
 
 # crystal frequency, setup to use external oscillator
 OSCILLATOR_HZ 8000000
@@ -121,14 +118,9 @@ PD8 USART3_TX USART3
 PB9 UART4_TX UART4
 PB8 UART4_RX UART4
 
-# USART6 (RC input)
-PC7 USART6_RX USART6 NODMA
-PC6 USART6_TX USART6 NODMA
-
-# as an alternative config setup the RX6 pin as a uart. This allows
-# for bi-directional UART based receiver protocols such as FPort
-# without any extra hardware
-PC7 USART6_RX USART6 NODMA ALT(1)
+# USART6 (RC input), SERIAL7
+PC6 USART6_TX USART6
+PC7 USART6_RX USART6
 
 # UART7 (telem1)
 PE7 UART7_RX UART7
@@ -184,13 +176,14 @@ define HAL_STORAGE_SIZE 32768
 STORAGE_FLASH_PAGE 14
 
 # spi devices
-SPIDEV icm42688-1  SPI4 DEVID1 IMU1_CS      MODE3  2*MHZ 16*MHZ   # Clock is 100Mhz so highest clock <= 24Mhz is 100Mhz/8
-SPIDEV icm42688-2  SPI4 DEVID2 IMU2_CS      MODE3  2*MHZ 16*MHZ
-SPIDEV icm20948    SPI3 DEVID1 IMU3_CS      MODE3  2*MHZ 16*MHZ 
+SPIDEV icm42688-1  SPI4 DEVID1 IMU1_CS      MODE3 2*MHZ  8*MHZ   # Clock is 100Mhz so highest clock <= 24Mhz is 100Mhz/8
+SPIDEV icm42688-2  SPI4 DEVID2 IMU2_CS      MODE3 2*MHZ  8*MHZ
+SPIDEV icm20948    SPI3 DEVID1 IMU3_CS      MODE3 2*MHZ  8*MHZ 
 SPIDEV osd         SPI2 DEVID4 MAX7456_CS   MODE0 10*MHZ 10*MHZ
 
 
-DMA_NOSHARE SPI1* SPI4*
+DMA_NOSHARE SPI1*
+# SPI4*
 
 # one internal compass
 COMPASS AK09916:probe_ICM20948 0 ROTATION_PITCH_180
@@ -221,6 +214,3 @@ define HAL_BOARD_TERRAIN_DIRECTORY "/APM/TERRAIN"
 define OSD_ENABLED 1
 define HAL_OSD_TYPE_DEFAULT 1
 ROMFS_WILDCARD libraries/AP_OSD/fonts/font*.bin
-
-define AP_AHRS_POSITION_RESET_ENABLED 1
-define EK3_FEATURE_POSITION_RESET 1
